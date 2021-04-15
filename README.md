@@ -1,6 +1,6 @@
 # criticality-search
  ## tipos de busca:
-  **1. hill_climbing** - hill climbing puro
+  **1. hill_climbing** - hill climbing puro\n
   **2. simulated_annealing** - simulated annealing puro
   **3. optimized_hillclimbing** - hill climbing selecionado aleatoriamente tuplas não observáveis, e depois realiza A em cada uma delas*
   **4. optimized_dfs** - realiza uma dfs até uma tupla não observável e depois um hill climbing ao contrário para encontrar a ck
