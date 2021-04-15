@@ -332,3 +332,7 @@ ASALocalRun/
 
 # Local History for Visual Studio
 .localhistory/
+
+#Bibliotecas
+.armadillo-4.000.2/
+
