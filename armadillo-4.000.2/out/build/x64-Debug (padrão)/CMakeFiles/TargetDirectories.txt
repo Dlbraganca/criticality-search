@@ -1,0 +1,6 @@
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/armadillo.dir
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/install/local.dir
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/install.dir
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/edit_cache.dir
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/rebuild_cache.dir
+F:/UFF/IC2/Ck-Tuple Search/Projects-Visual Studio/armadillo-4.000.2/out/build/x64-Debug (padrão)/CMakeFiles/list_install_components.dir

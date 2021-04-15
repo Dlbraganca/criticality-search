@@ -1,0 +1,11 @@
+Parametros do problema 
+
+Dimensao:19
+k-limite:7
+k-min:1
+k-max:7
+Criticalidade:measurement
+Tipo de busca:reverse_hill_climbing
+no. solucoes visitadas:6599
+tempo decorrido:252456
+memória utilizada:7155712
