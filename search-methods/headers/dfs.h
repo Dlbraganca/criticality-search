@@ -10,23 +10,15 @@
 #include"../../criticality/header/ck_search.h"
 #include"../../criticality/header/systemState.h"
 
-class local_asearch : public ck_search
+class dfs : public ck_search
 {
 public:
-	local_asearch(const char* CK_PARAM_FILE);
-	local_asearch(systemState, criticality&, std::string);
-
-	std::stack<std::vector<unsigned int>> get_result() { return result; }
+	dfs(const char* CK_PARAM_FILE);
+	dfs(systemState, criticality&, std::string);
 private:
-
-	std::stack<std::vector<unsigned int>> result;
-	systemState system;
-	criticality critical_data;
-	std::string ck_param_file;
-	unsigned int no_of_visited_solutions = 0;
-	clock_t elapsed_time;
-	systemState get_best_heuristic(std::vector<systemState>&);
+	int no_of_visited_solutions;
 	void main();
+	void report();
 	std::string get_hash(std::vector<unsigned int> vector) {
 		std::string hashKey;
 		for (size_t i = 0; i < vector.size(); i++)

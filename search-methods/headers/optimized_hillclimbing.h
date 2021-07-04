@@ -2,6 +2,9 @@
 #include"../../criticality/header/ck_search.h"
 #include"../../criticality/header/systemState.h"
 #include"./local_asearch.h"
+#include"./local_asearch_fast.h"
+#include"./local_dfs.h"
+#include"./local_bfs.h"
 #include<vector>
 #include <algorithm>
 #include"windows.h"
@@ -9,6 +12,8 @@
 #include<unordered_map>
 #include<chrono>
 #include<random>
+#include <iostream>
+#include <fstream>
 
 class Optimized_HillClimbing : public ck_search
 {
@@ -16,7 +21,7 @@ public:
 	Optimized_HillClimbing(const char*);
 	void report();
 private:
-	unsigned int populationSize = 5;
+	unsigned int populationSize = 1;
 	std::unordered_map<std::string, std::vector<unsigned int>> ckList;
 	unsigned int no_of_visited_solutions = 0;
 

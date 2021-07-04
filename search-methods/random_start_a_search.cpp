@@ -1,7 +1,7 @@
-#include"./headers/optimized_hillclimbing.h"
+#include"./headers/random_start_a_search.h"
 
 
-Optimized_HillClimbing::Optimized_HillClimbing(const char* CK_PARAM_FILE) : ck_search(CK_PARAM_FILE) {
+random_start_a_search::random_start_a_search(const char* CK_PARAM_FILE) : ck_search(CK_PARAM_FILE) {
 	std::vector<unsigned int> initialVector;
 	//inicia vetor com todas as medidas do sistema
 	main();
@@ -14,17 +14,17 @@ Optimized_HillClimbing::Optimized_HillClimbing(const char* CK_PARAM_FILE) : ck_s
 /// a árvore resultante é mt grande consumindo mais tempo que se fosse apenas 1 árvore
 ///
 /// </summary>
-void Optimized_HillClimbing::main(){
+void random_start_a_search::main() {
 	bool loopControl = true;
 	clock_t tbegin = clock();
 	unsigned int count = 0;
 	unsigned int ckFound = 0;
 	std::stack<std::vector<unsigned int>> searchResult;
 	std::ofstream status_file;
-	status_file.open("iteration_report_hillclimbing_a_search.txt", std::ios::trunc);
+	status_file.open("iteration_report_random_a_search.txt", std::ios::trunc);
 	//min performance 10
 	//status_file.open("iteration_report_abel.txt", std::ios::trunc);
-	while (perfomanceTest > 0.05 || loopControl )
+	while (perfomanceTest > 0.05 || loopControl)
 	{
 		clock_t interation_time = clock();
 		no_of_visited_solutions++;
@@ -35,7 +35,7 @@ void Optimized_HillClimbing::main(){
 			//std::cout << "A* INICIADA......\n";
 			//local_asearch search_0 = local_asearch(newPopulation[i], critical_data, get_crit_type()); //busca apenas com as medidas escolhidas da tupla
 			//std::cout << "A* RAPIDA INICIADA......\n";
-			local_asearch_fast search = local_asearch_fast(newPopulation[i], critical_data, get_crit_type()); //busca apenas com as medidas escolhidas da tupla
+			a_search_random search = a_search_random(newPopulation[i], critical_data, get_crit_type()); //busca apenas com as medidas escolhidas da tupla
 			//std::cout << "DFS INICIADA......\n";
 			//local_dfs search_1 = local_dfs(newPopulation[i], critical_data, get_crit_type()); //busca apenas com as medidas escolhidas da tupla
 			//std::cout << "BFS INICIADA......\n";
@@ -46,7 +46,7 @@ void Optimized_HillClimbing::main(){
 			count++;
 		}
 		//std::cout << "ck: " << ckFound << "\n";
-		perfomanceTest = (double(ckFound)+ 1.0) / count;
+		perfomanceTest = (double(ckFound) + 1.0) / count;
 		//std::cout << "performance: "<< perfomanceTest << "\n";
 		if (status_file.is_open()) { // impressao parametros do problema
 			status_file << "n_estados_visitados: " << no_of_visited_solutions << " cks_encontradas: " << ckFound << " tempo_de_execucao: " << abs(elapsed_time - clock()) << " ms" << " tempo_da_iteracao: " << abs(interation_time - clock()) << " ms " << " memoria: " << get_memory() << "\n";
@@ -57,13 +57,13 @@ void Optimized_HillClimbing::main(){
 	report();
 }
 
-void Optimized_HillClimbing::convertResult() {
+void random_start_a_search::convertResult() {
 	for (auto it = ckList.cbegin(); it != ckList.cend(); ++it) {
 		lopt.push(it->second);
 	}
 }
 
-unsigned int Optimized_HillClimbing::result_evaluation(std::stack<std::vector<unsigned int>> searchResult) {
+unsigned int random_start_a_search::result_evaluation(std::stack<std::vector<unsigned int>> searchResult) {
 	std::string hashKey;
 	unsigned int count = 0;
 	while (!searchResult.empty())
@@ -85,7 +85,7 @@ unsigned int Optimized_HillClimbing::result_evaluation(std::stack<std::vector<un
 	return count;
 }
 
-std::vector<systemState> Optimized_HillClimbing::create_population() {
+std::vector<systemState> random_start_a_search::create_population() {
 
 	std::vector<systemState> population;
 
@@ -96,15 +96,14 @@ std::vector<systemState> Optimized_HillClimbing::create_population() {
 	{
 		std::vector< unsigned int> initialVector(critical_data.get_meas_location().size(), 0);
 		//std::cout << "size vector : " << critical_data.get_meas_location().size() << std::endl;
-		double p = 1.0/critical_data.get_meas_location().size();
+		double p = 1.0 / critical_data.get_meas_location().size();
 		//std::cout << "p : " << p << std::endl;
 		std::geometric_distribution <int> distribution(p); // cria uma distribuicao uniforme com os valores min e max 
 		int randNum;
 		int maxValue = (critical_data.get_nm() - critical_data.get_ns()) + 1;
 		do {
 			randNum = distribution(generator); //gera o numero aleatorio
-		}
-		while (randNum > maxValue || randNum <= 0);
+		} while (randNum > maxValue || randNum <= 0);
 		//std::cout << "numero sorteado: " << randNum << std::endl;
 		int countOne = 0;
 		//randNum = 19;
@@ -157,14 +156,14 @@ std::vector<systemState> Optimized_HillClimbing::create_population() {
 }
 
 
-void Optimized_HillClimbing::report() {
+void random_start_a_search::report() {
 
 	std::ofstream critfile, report_file;
 	std::vector<unsigned int> tuple;
 	int result;
 
-	critfile.open("critical_tuples_hillclimbing_a_search.txt", std::ios::trunc);
-	report_file.open("BB_report_hillclimbing_a_search.txt");
+	critfile.open("critical_tuples_random_a_search.txt", std::ios::trunc);
+	report_file.open("BB_report_random_a_search.txt");
 	if (report_file.is_open()) { // impressao parametros do problema
 		report_file << "Parametros do problema \n" << std::endl;
 		report_file << "Dimensao:" << dim << std::endl;

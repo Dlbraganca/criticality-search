@@ -3,24 +3,57 @@
 
 	systemState::systemState() {};
 	systemState::~systemState() {};
-	systemState::systemState(std::vector<unsigned int> cklist, criticality& critical_data, std::string x) {
-		CKLIST = cklist;
-		CRITICAL_DATA = critical_data;
-		DEEPTH = set_depth();
-		TYPE_SEARCH = x;
+	systemState::systemState(std::vector<unsigned int> cklist, criticality& critical_data, std::string x): CKLIST(cklist), CRITICAL_DATA(critical_data), PATHCOST(0), DEEPTH(set_depth()), TYPE_SEARCH(x){
 		if (TYPE_SEARCH == "measurement")
 		{
+			//HEURISTIC = measurement_heuristic() + DEEPTH;
 			HEURISTIC = measurement_heuristic();
 		}
 		else
 		{
+			//HEURISTIC = munit_heuristic() + DEEPTH;
 			HEURISTIC = munit_heuristic();
 		}
-		HEURISTIC = HEURISTIC;
+		F = HEURISTIC + PATHCOST;
+	}
+	systemState::systemState(std::vector<unsigned int> cklist, criticality& critical_data, std::string x, systemState lastState) : CKLIST(cklist), CRITICAL_DATA(critical_data), DEEPTH(set_depth()), TYPE_SEARCH(x) {
+		if (TYPE_SEARCH == "measurement")
+		{
+			//HEURISTIC = measurement_heuristic() + DEEPTH;
+			HEURISTIC = measurement_heuristic();
+		}
+		else
+		{
+			//HEURISTIC = munit_heuristic() + DEEPTH;
+			HEURISTIC = munit_heuristic();
+		}
+		PATHCOST = 1.0 + 1.0 / abs((lastState.get_heuristic() - HEURISTIC)); //calculo do custo do caminho do estado anterior para o estado atual
+		PATHCOST = lastState.get_path_cost() + PATHCOST; // acumulo dos custos
+		F = HEURISTIC + PATHCOST;
+		
+		if (PATHCOST == std::numeric_limits<double>::infinity())
+		{
+			PATHCOST = std::numeric_limits<float>::max() - 1;
+		}
+		if (F == std::numeric_limits<double>::infinity())
+		{
+			F = std::numeric_limits<float>::max() - 1;
+		}
 	}
 
 	bool systemState::evalueCK() {
 		if (TYPE_SEARCH == "measurement")
+		{
+			return measurement_evalueCK();
+		}
+		else
+		{
+			return  munit_evalueCK();
+		}
+	}
+
+	bool systemState::evalueCK(std::string type) {
+		if (type == "measurement")
 		{
 			return measurement_evalueCK();
 		}

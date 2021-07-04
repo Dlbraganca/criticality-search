@@ -49,6 +49,7 @@ private:
 	systemState bestResult;
 	clock_t elapsed_time;
 	unsigned int ktuplefound = 0;
+	std::unordered_map<std::string, std::vector<double> > ponderationMap;
 
 
 	SIZE_T get_memory() {
@@ -66,4 +67,16 @@ private:
 	void save_result(std::vector<unsigned int>);
 	void convert_result();
 	systemState create_population();
+	void search();
+	systemState highest_value_optmized(systemState);
+	std::string get_hash(std::vector<unsigned int> vector) {
+		std::string hashKey;
+		for (size_t i = 0; i < vector.size(); i++)
+		{
+			hashKey.push_back(vector[i]);
+		}
+		return hashKey;
+	}
+	bool check_ponderation(std::vector<double>);
+	unsigned int size_list();
 };

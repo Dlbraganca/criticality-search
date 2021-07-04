@@ -10,6 +10,8 @@
 #include"./search-methods/headers/reverse_dfs.h"
 #include"./search-methods/headers/successive_hill_climbing.h"
 #include"./search-methods/headers/reverse_hill_climbing.h"
+#include"./search-methods/headers/dfs.h"
+#include"./search-methods/headers/random_start_a_search.h"
 
 void main() {
 
@@ -46,5 +48,11 @@ void main() {
 	}
 	else if (param_str.compare("reverse_hill_climbing") == 0) {
 		reverse_hill_climbing search = reverse_hill_climbing("ck_directives.txt");
+	}
+	else if (param_str.compare("dfs") == 0) {
+		dfs search = dfs("ck_directives.txt");
+	}
+	else if (param_str.compare("random_start_a_search") == 0) {
+		random_start_a_search search = random_start_a_search("ck_directives.txt");
 	}
 	};

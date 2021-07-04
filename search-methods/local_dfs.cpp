@@ -1,26 +1,18 @@
-#include"./headers/local_asearch.h"
+#include"./headers/local_dfs.h"
 
-local_asearch::local_asearch(const char* CK_PARAM_FILE) : ck_search(CK_PARAM_FILE) {
+local_dfs::local_dfs(const char* CK_PARAM_FILE) {
 
 }
 
-local_asearch::local_asearch(systemState SYSTEM, criticality& CRITICAL_DATA , std::string CK_PARAM_FILE) {
+local_dfs::local_dfs(systemState SYSTEM, criticality& CRITICAL_DATA, std::string CK_PARAM_FILE) {
 	ck_param_file = CK_PARAM_FILE;
 	critical_data = CRITICAL_DATA;
 	system = SYSTEM;
 	main();
 }
 
-bool comparar_heuristicas(systemState& a, systemState& b) {
-	return a.get_heuristic() > b.get_heuristic(); //descendente
-};
 
-void sort_vector(std::vector<systemState>& x) {
-	std::sort(x.begin(), x.end(), &comparar_heuristicas);
-};
-
-
-systemState local_asearch::get_best_heuristic(std::vector<systemState> &pile) {
+systemState local_dfs::get_best_heuristic(std::vector<systemState>& pile) {
 	double bestHeuristic = pile.front().get_heuristic();
 	unsigned int interator = 0;
 	systemState result;
@@ -37,8 +29,8 @@ systemState local_asearch::get_best_heuristic(std::vector<systemState> &pile) {
 	return result;
 }
 
-void local_asearch::main() {
-	std::vector<systemState> pile;
+void local_dfs::main() {
+	std::stack<systemState> pile;
 	std::string hashKey;
 	systemState nextState;
 	std::vector<unsigned int> atualMeasurement;
@@ -53,25 +45,24 @@ void local_asearch::main() {
 		newMeasuremet.push_back(0);
 	}
 
-	pile.push_back(systemState(newMeasuremet, critical_data, ck_param_file));
+	pile.push(systemState(newMeasuremet, critical_data, get_crit_type()));
 
-	status_file.open("status_reportA.txt", std::ios::trunc);
+	status_file.open("status_reportDFS.txt", std::ios::trunc);
 	while (!pile.empty())
 	{
 		//std::cout << "tamanho da pilha: " << pile.size() << std::endl;
 		//teste ordenar heuristica
 		no_of_visited_solutions++;
 		clock_t interation_time = clock();
-		sort_vector(pile);
-		nextState = pile.back();
-		pile.pop_back();
+		nextState = pile.top();
+		pile.pop();
 		atualMeasurement = nextState.get_cklist();
-		
+
 		//verifica se é o objetivo
 		if (critical_data.measurement_criticality(atualMeasurement) == 1)
 		{
 			result.push(atualMeasurement);
-			//std::cout << "k-tupla encontrada! " << result.size() <<  "\n";
+			//std::cout << "k-tupla encontrada! " << result.size() << "\n";
 		}
 		//expande o nó atual 
 		else
@@ -86,10 +77,10 @@ void local_asearch::main() {
 				{
 					newMeasuremet = atualMeasurement;
 					newMeasuremet[i] = 1;
-					systemState newState(newMeasuremet, critical_data, ck_param_file);
-					if (newState.evalueCK())
+					systemState newState(newMeasuremet, critical_data, get_crit_type(), nextState);
+					if (newState.evalueCK(ck_param_file))
 					{
-						pile.push_back(newState);
+						pile.push(newState);
 					}
 				}
 			}

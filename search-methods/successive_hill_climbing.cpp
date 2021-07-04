@@ -154,7 +154,6 @@ void successive_hill_climbing::main() {
 	elapsed_time = clock() - elapsed_time;
 }
 
-
 systemState successive_hill_climbing::create_population() {
 
 	std::vector<unsigned int> initialVector;

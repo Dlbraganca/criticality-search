@@ -1,6 +1,6 @@
-reverse_hill_climbing
-7
+optimized_hillclimbing
+3
 1
-7
-19
+3
+4
 measurement

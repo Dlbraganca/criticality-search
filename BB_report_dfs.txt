@@ -7,5 +7,5 @@ k-max:3
 Criticalidade:measurement
 Tipo de busca:dfs
 no. solucoes visitadas:4
-tempo decorrido:62
+tempo decorrido:67
 memória utilizada:5337088

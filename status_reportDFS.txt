@@ -1,0 +1,4 @@
+n_estados_visitados: 1 cks_encontradas: 1 tempo_de_execucao: 1 ms tempo_da_iteracao: 1 ms  memoria: 5234688
+n_estados_visitados: 2 cks_encontradas: 2 tempo_de_execucao: 1 ms tempo_da_iteracao: 0 ms  memoria: 5324800
+n_estados_visitados: 3 cks_encontradas: 3 tempo_de_execucao: 1 ms tempo_da_iteracao: 0 ms  memoria: 5324800
+n_estados_visitados: 4 cks_encontradas: 4 tempo_de_execucao: 2 ms tempo_da_iteracao: 1 ms  memoria: 5324800

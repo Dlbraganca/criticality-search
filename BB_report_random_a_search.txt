@@ -1,0 +1,11 @@
+Parametros do problema 
+
+Dimensao:4
+k-limite:3
+k-min:1
+k-max:3
+Criticalidade:measurement
+Tipo de busca:random_start_a_search
+no. solucoes visitadas:100
+tempo decorrido:29
+memória utilizada:5459968

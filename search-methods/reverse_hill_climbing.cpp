@@ -5,7 +5,7 @@ reverse_hill_climbing::reverse_hill_climbing() {};
 
 reverse_hill_climbing::reverse_hill_climbing(const char* CK_PARAM_FILE) : ck_search(CK_PARAM_FILE)
 {
-	main();
+	search();
 	convert_result();
 	report();
 };
@@ -51,7 +51,7 @@ systemState reverse_hill_climbing::highest_value(systemState current) { // funca
 	{
 		current.set_heuristic(-1);// -1 de heuristica siginifica q é uma tupla critica
 		ktuplefound++;
-		std::cout << "ktupla encontrada "<< ktuplefound << "\n";
+		//std::cout << "ktupla encontrada "<< ktuplefound << "\n";
 		return current;
 	}
 	else if (queue.size() > 0)
@@ -63,8 +63,117 @@ systemState reverse_hill_climbing::highest_value(systemState current) { // funca
 	else
 	{
 		current.set_heuristic(-20);// -20 de heuristica siginifica q é uma tupla critica
-		std::cout << "fim da árvore\n";
+		//std::cout << "fim da árvore\n";
 		return current;
+	}
+}
+
+systemState reverse_hill_climbing::highest_value_optmized(systemState current) { // funcao que retorna o maior valor disponivel
+
+	std::vector<unsigned int> atualList = current.get_cklist();
+	unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+	std::mt19937 generator(seed);
+	bool kTuple = true;
+	std::vector<double> ponderationVector;
+	std::vector<systemState> queue(atualList.size(), systemState()); // inicia a fila com estados vazios
+	std::string hashKey = get_hash(atualList);
+	if (ponderationMap.find(hashKey) == ponderationMap.end()) //caso nao existe o ramo de ponderacao para o estado cria o ramo de ponderacao
+	{
+		std::vector<double> ponderationVector;
+		for (size_t i = 0; i < atualList.size(); i++)
+		{
+			if (atualList[i] == 1)
+			{
+				ponderationVector.push_back(1);
+			}
+			else
+			{
+				ponderationVector.push_back(0);
+			}
+		}
+		ponderationMap.emplace(hashKey, ponderationVector);
+		ponderationVector.clear();
+	}
+	hashKey = get_hash(atualList);
+	ponderationVector = ponderationMap[hashKey];
+	for (size_t i = 0; i < atualList.size(); i++) //expansao do estado atual
+	{
+		std::vector<unsigned int> newState;
+		if (atualList[i] == 1) //caso encontre uma medida que foi retirada
+		{
+			newState = atualList;
+			newState[i] = 0; //adiciona essa medida
+			systemState state = systemState(newState, critical_data, get_crit_type()); //cria o estado do sistema
+			if (state.get_heuristic() == 0) //|| state.get_heuristic() == std::numeric_limits<double>::max()) //lembrar que a classe sytemState ja ta fazendo o teste n-1 tornando o sistema mais lento essa verificacao nao precisa
+			{ //verifica se a tupla é não observavel
+				kTuple = false;
+				if (evalue_new_tuple(state)) //verifica se ela ja foi alcancada por alguma resposta
+				{
+					//queue.push_back(state); //caso nao adiciona na fila
+					queue[i] = state; //caso nao adiciona na fila
+				}
+				else
+				{
+					ponderationVector[i] = 0; //caso sim torna a ponderacao dela como 0
+				}
+			}
+			else
+			{
+				ponderationVector[i] = 0; //caso sim torna a ponderacao dela como 0
+			}
+		}
+	}
+	if (kTuple) //caso a vizinha nao encontre nenhum novo estado, siginigica q é um estado objetivo
+	{
+		current.set_heuristic(-1);// -1 de heuristica siginifica q é uma tupla critica
+		ktuplefound++;
+		//std::cout << "ktupla encontrada " << ktuplefound << "\n";
+		for (size_t i = 0; i < ponderationMap[hashKey].size(); i++) //zera todos os pesos
+		{
+			ponderationMap[hashKey][i] = 0; // transforma seu peso em 0;
+		}
+		 return current;
+	}
+	else if (queue.size() > 0) //caso exista borda
+	{
+		if (!check_ponderation(ponderationVector))
+		{
+			current.set_heuristic(-20);// nao existe mais estados para expandir
+		//std::cout << "fim da árvore\n";
+			return current;
+		}
+		else
+		{
+			std::discrete_distribution<int> distribution(ponderationVector.begin(), ponderationVector.end()); // cria uma distribuicao uniforme com os valores do vetor
+			int randNum = distribution(generator); //gera a posicao no vetor a ser retorndada
+			//std::cout << "posicao sorteada : " << randNum << std::endl;
+			//std::cout << "valor sorteado : " << ponderationVector[randNum];
+			ponderationVector[randNum] = ponderationVector[randNum] / 10.0; //defavorece a podenracao dessa medida
+			ponderationMap[hashKey] = ponderationVector; //atualiza a lista na tablea
+			return queue[randNum]; //siginifica q a tupla possui subtuplas e retorna uma tupla aleatoria
+		}
+	}
+	else
+	{
+		current.set_heuristic(-20);// -20 de heuristica siginifica q é uma tupla critica
+		//std::cout << "fim da árvore\n";
+		return current;
+	}
+}
+
+bool reverse_hill_climbing::check_ponderation(std::vector<double> x) {
+	double sum = 0;
+	for (size_t i = 0; i < x.size(); i++)
+	{
+		sum = sum + x[i];
+	}
+	if (sum > 0)
+	{
+		return true; //caso seja um vetor de podenracao possivel 
+	}
+	else
+	{
+		return false; //caso nao seja um vetor de ponderacao possivel
 	}
 }
 
@@ -94,11 +203,14 @@ bool reverse_hill_climbing::evalue_new_tuple(systemState atual) {
 	return true;  //tupla nao contem uma k-tupla critica
 }
 
-void reverse_hill_climbing::main() {
+void reverse_hill_climbing::search() {
 
 	std::vector<unsigned int> initialVector;
 	std::vector<systemState> pile;
 	unsigned int contadorPrint = 0;
+	std::ofstream  status_file;
+	//min performance 10
+	status_file.open("iteration_report_hillclimbing_diogo.txt", std::ios::trunc);
 
 	if (get_crit_type() == "measurement")
 	{
@@ -119,9 +231,10 @@ void reverse_hill_climbing::main() {
 	std::vector<unsigned int> result;
 	bool loopControl2 = true;
 	double stoppingCriterion = 1;
-	while ((stoppingCriterion/(no_of_visited_solutions+1)) > 0.01)
+	while ((double(stoppingCriterion)/double(no_of_visited_solutions+1)) > 1/pow(2,initialVector.size()))
 	{
-		std::cout << "valor de convergencia " << stoppingCriterion / (no_of_visited_solutions + 1) << "\n";
+		clock_t interation_time = clock();
+		//std::cout << "valor de convergencia " << stoppingCriterion / (no_of_visited_solutions + 1) << "\n";
 		systemState current = systemState(initialVector, critical_data, get_crit_type()); //define a corrente como estado inicial
 		//systemState current = create_population();
 		result.clear();
@@ -129,7 +242,8 @@ void reverse_hill_climbing::main() {
 		no_of_visited_solutions++;
 		while (loopControl)
 		{
-			neighbor = highest_value(current);
+			//neighbor = highest_value(current); //codigo original (funcionando)
+			neighbor = highest_value_optmized(current); //codigo acelerado(em teste)
 			if (neighbor.get_heuristic() == -1)
 			{
 				save_result(neighbor.get_cklist());
@@ -146,8 +260,11 @@ void reverse_hill_climbing::main() {
 				current = neighbor;
 			}
 		}
+		if (status_file.is_open()) { // impressao parametros do problema
+			status_file << "n_estados_visitados: " << no_of_visited_solutions << " cks_encontradas: " << size_list() << " tempo_de_execucao: " << abs(elapsed_time - clock()) << " ms" << " tempo_da_iteracao: " << abs(interation_time - clock()) << " ms " << " memoria: " << get_memory() << "\n";
+		}
 	}
-	std::cout << "busca encerrada \n";
+	//std::cout << "busca encerrada \n";
 	elapsed_time = clock() - elapsed_time;
 }
 
@@ -222,6 +339,20 @@ void reverse_hill_climbing::save_result(std::vector<unsigned int> state) {
 	}
 }
 
+unsigned int reverse_hill_climbing::size_list() {
+	unsigned int size = 0;
+	//std::cout << "print size\n";
+	for (auto it = ckList.begin(); it != ckList.end(); ++it) {
+		std::vector<std::vector<unsigned int>> result = it->second;
+		if (!result.empty())
+		{
+			//std::cout << result[0].size() << "\n";
+			size = size + result.size();
+		}
+	}
+	return size;
+}
+
 void reverse_hill_climbing::convert_result() {
 	for (auto it = ckList.begin(); it != ckList.end(); ++it) {
 		std::vector<std::vector<unsigned int>> result = it->second;
@@ -234,14 +365,15 @@ void reverse_hill_climbing::convert_result() {
 	ckList.clear();
 }
 
+
 void reverse_hill_climbing::report() {
 
 	std::ofstream critfile, report_file;
 	std::vector<unsigned int> tuple;
 	int result;
 
-	critfile.open("critical_tuples.txt", std::ios::trunc);
-	report_file.open("BB_report.txt");
+	critfile.open("critical_tuples__hillclimbing_diogo.txt", std::ios::trunc);
+	report_file.open("BB_report_hillclimbing_diogo.txt");
 	if (report_file.is_open()) { // impressao parametros do problema
 		report_file << "Parametros do problema \n" << std::endl;
 		report_file << "Dimensao:" << dim << std::endl;

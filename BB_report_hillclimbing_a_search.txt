@@ -1,0 +1,11 @@
+Parametros do problema 
+
+Dimensao:4
+k-limite:3
+k-min:1
+k-max:3
+Criticalidade:measurement
+Tipo de busca:optimized_hillclimbing
+no. solucoes visitadas:100
+tempo decorrido:44
+memória utilizada:5480448
